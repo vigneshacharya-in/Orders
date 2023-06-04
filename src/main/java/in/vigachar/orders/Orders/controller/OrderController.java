@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.ConnectException;
+
 @RestController
 @RequestMapping("api/v1/orders")
 public class OrderController {
@@ -20,7 +22,7 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
-    public Order getOrderDetails(@PathVariable Long orderId) throws OrderService.OrderNotFoundException {
+    public Order getOrderDetails(@PathVariable Long orderId) throws OrderService.OrderNotFoundException, ConnectException {
         return orderService.getOrderById(orderId);
     }
 }
