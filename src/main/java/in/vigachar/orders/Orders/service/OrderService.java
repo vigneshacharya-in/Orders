@@ -4,6 +4,7 @@ import in.vigachar.orders.Orders.entity.Customer;
 import in.vigachar.orders.Orders.entity.Order;
 import in.vigachar.orders.Orders.repository.OrderRepository;
 import in.vigachar.orders.Orders.util.RestClient;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,15 +32,20 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
 
-        Customer customer = restClient.get(order.getCustomerId());
+        Customer customer = null;
+        try {
+            customer = restClient.get(order.getCustomerId());
+        } catch (Exception e) {
+            printCircuitBreakerMetrics("customers");
+            throw e;
+        }
         order.setCustomer(customer);
-
         printCircuitBreakerMetrics("customers");
 
         return order;
     }
 
-    public Order fallbackCustomer(Long orderId, ConnectException ex) throws OrderNotFoundException {
+    public Order fallbackCustomer(Long orderId, CallNotPermittedException ex) throws OrderNotFoundException {
         // Fallback logic when the circuit is open or an error occurs
         // You can return a default customer or an empty list of orders
         System.out.println("Exception: " + ex.getClass().toString() + ", Message: " + ex.getMessage());

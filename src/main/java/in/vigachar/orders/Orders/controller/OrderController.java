@@ -23,7 +23,11 @@ public class OrderController {
 
     @GetMapping("/{orderId}")
     public Order getOrderDetails(@PathVariable Long orderId) throws OrderService.OrderNotFoundException, ConnectException {
-        return orderService.getOrderById(orderId);
+        try {
+            return orderService.getOrderById(orderId);
+        } catch (ConnectException e) {
+            return new Order();
+        }
     }
 }
 
