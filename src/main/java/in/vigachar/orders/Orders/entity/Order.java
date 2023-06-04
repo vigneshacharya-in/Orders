@@ -29,5 +29,8 @@ public class Order {
 
     @Column(nullable = false)
     private String status;
+
+    @Transient
+    private Customer customer;
 }
 

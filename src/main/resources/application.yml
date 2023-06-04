@@ -6,4 +6,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+resilience4j:
+  circuitbreaker:
+    instances:
+      customers:
+        register-health-indicator: true
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        wait-duration-in-open-state: 5s
+        failure-rate-threshold: 10
+        record-exceptions:
+          - java.net.SocketTimeoutException
 
